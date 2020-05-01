@@ -58,7 +58,11 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
     this.props.updateContact(updatedContact);
   };
 
-  navigateToSendCoins = () => null;
+  navigateToSendCoins = () => {
+    this.props.navigation.navigate(Route.SendCoins, {
+      toAdress: this.state.address,
+    });
+  };
 
   navigateToContactQRCode = () => {
     const contact = this.props.navigation.getParam('contact');
