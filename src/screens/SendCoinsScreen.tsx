@@ -95,7 +95,6 @@ export class SendCoinsScreen extends Component<Props, State> {
 
   async componentDidMount() {
     const toAddress = this.props.navigation.getParam('toAddress');
-    console.log('toAddress', toAddress);
     const addresses = toAddress ? [{ address: toAddress }] : [new BitcoinTransaction()];
     this.setState({
       addresses,
@@ -613,7 +612,6 @@ export class SendCoinsScreen extends Component<Props, State> {
 
   render() {
     const { fromWallet, fee, isLoading } = this.state;
-    console.log('addresses', this.state.addresses);
     return (
       <ScreenTemplate
         footer={

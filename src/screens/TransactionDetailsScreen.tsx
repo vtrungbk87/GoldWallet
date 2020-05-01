@@ -239,10 +239,7 @@ const mapDispatchToProps = {
   updateTransaction,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(TransactionDetailsScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(TransactionDetailsScreen);
 
 const styles = StyleSheet.create({
   headerContainer: {
