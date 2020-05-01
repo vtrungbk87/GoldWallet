@@ -95,18 +95,17 @@ export class SendCoinsScreen extends Component<Props, State> {
 
   async componentDidMount() {
     const toAddress = this.props.navigation.getParam('toAddress');
-
+    console.log('toAddress', toAddress);
     const addresses = toAddress ? [{ address: toAddress }] : [new BitcoinTransaction()];
-    console.log('addresses', addresses);
     this.setState({
       addresses,
       isLoading: false,
     });
 
     try {
-      const cachedNetworkTransactionFees = JSON.parse((await AsyncStorage.getItem(
-        NetworkTransactionFee.StorageKey,
-      )) as string);
+      const cachedNetworkTransactionFees = JSON.parse(
+        (await AsyncStorage.getItem(NetworkTransactionFee.StorageKey)) as string,
+      );
 
       if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
         this.setState({
@@ -133,6 +132,7 @@ export class SendCoinsScreen extends Component<Props, State> {
   }
 
   processBIP70Invoice = async (text: string) => {
+    console.log('processBIP70Invoice called');
     try {
       if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
         return BitcoinBIP70TransactionDecode.decode(text)
@@ -613,7 +613,7 @@ export class SendCoinsScreen extends Component<Props, State> {
 
   render() {
     const { fromWallet, fee, isLoading } = this.state;
-    // console.log('addresses', this.state.addresses);
+    console.log('addresses', this.state.addresses);
     return (
       <ScreenTemplate
         footer={

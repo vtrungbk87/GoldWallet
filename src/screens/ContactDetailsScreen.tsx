@@ -60,7 +60,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
 
   navigateToSendCoins = () => {
     this.props.navigation.navigate(Route.SendCoins, {
-      toAdress: this.state.address,
+      toAddress: this.state.address,
     });
   };
 
@@ -122,10 +122,7 @@ const mapDispatchToProps = {
   updateContact,
 };
 
-export default connect(
-  null,
-  mapDispatchToProps,
-)(ContactDetailsScreen);
+export default connect(null, mapDispatchToProps)(ContactDetailsScreen);
 
 const styles = StyleSheet.create({
   showWalletXPUBContainer: {
