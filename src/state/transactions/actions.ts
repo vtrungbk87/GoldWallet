@@ -1,9 +1,15 @@
 import { Transaction } from 'app/consts';
 
 export enum TransactionsAction {
+  LoadTransactions = 'LoadTransactions',
   CreateTransaction = 'CreateTransaction',
   UpdateTransaction = 'UpdateTransaction',
   DeleteTransaction = 'DeleteTransaction',
+}
+
+export interface LoadTransactionsAction {
+  type: TransactionsAction.LoadTransactions;
+  transactions: Transaction[];
 }
 
 export interface CreateTransactionAction {
@@ -21,7 +27,16 @@ export interface DeleteTransactionAction {
   transaction: Transaction;
 }
 
-export type TransactionsActionType = CreateTransactionAction | UpdateTransactionAction | DeleteTransactionAction;
+export type TransactionsActionType =
+  | LoadTransactionsAction
+  | CreateTransactionAction
+  | UpdateTransactionAction
+  | DeleteTransactionAction;
+
+export const loadTransactions = (transactions: Transaction[]): LoadTransactionsAction => ({
+  type: TransactionsAction.LoadTransactions,
+  transactions,
+});
 
 export const createTransaction = (transaction: Transaction): CreateTransactionAction => ({
   type: TransactionsAction.CreateTransaction,

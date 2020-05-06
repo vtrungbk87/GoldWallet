@@ -4,14 +4,22 @@ import { TransactionsAction, TransactionsActionType } from './actions';
 
 export interface TransactionsState {
   transactions: Record<string, Transaction>;
+  // TODO rename old transactions to transactionNotes
+  transactionList: Transaction[];
 }
 
 const initialState: TransactionsState = {
   transactions: {},
+  transactionList: [],
 };
 
 export const transactionsReducer = (state = initialState, action: TransactionsActionType): TransactionsState => {
   switch (action.type) {
+    case TransactionsAction.LoadTransactions:
+      return {
+        ...state,
+        transactionList: action.transactions,
+      };
     case TransactionsAction.CreateTransaction:
       return {
         ...state,

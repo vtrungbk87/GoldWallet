@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, InteractionManager, RefreshControl } from 'react-native';
 import { NavigationEvents, NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { ListEmptyState, Image, WalletCard, ScreenTemplate, Header } from 'app/components';
-import { Wallet, Route } from 'app/consts';
+import { Wallet, Route, Transaction } from 'app/consts';
+import { ApplicationState } from 'app/state';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../../BlueApp';
@@ -16,15 +18,16 @@ import { WalletsCarousel } from './WalletsCarousel';
 const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');
 
-interface State {
-  wallets: Array<Wallet>;
+interface Props extends NavigationInjectedProps {
+  wallets: Wallet[];
+  transactions: Transaction[];
   isLoading: boolean;
-  isFlatListRefreshControlHidden: boolean;
-  lastSnappedTo: number;
-  dataSource: any;
 }
 
-type Props = NavigationInjectedProps;
+interface State {
+  isFlatListRefreshControlHidden: boolean;
+  lastSnappedTo: number;
+}
 
 export class DashboardScreen extends Component<Props, State> {
   static navigationOptions = (props: NavigationScreenProps) => ({
@@ -33,54 +36,12 @@ export class DashboardScreen extends Component<Props, State> {
     ),
   });
 
-  constructor(props: Props) {
-    super(props);
+  state: State = {
+    isFlatListRefreshControlHidden: true,
+    lastSnappedTo: 0,
+  };
 
-    const allWalletsBalance = BlueApp.getBalance();
-    const AllWallets = BlueApp.getWallets();
-    const wallets =
-      AllWallets.length > 1
-        ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets]
-        : AllWallets;
-
-    this.state = {
-      isLoading: true,
-      isFlatListRefreshControlHidden: true,
-      wallets,
-      lastSnappedTo: 0,
-      dataSource: null,
-    };
-
-    EV(EV.enum.WALLETS_COUNT_CHANGED, this.redrawScreen.bind(this));
-
-    // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
-    // remote server, we just redraw the screen
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.redrawScreen.bind(this));
-  }
   walletCarouselRef = React.createRef();
-
-  componentDidMount() {
-    this.redrawScreen();
-    // the idea is that upon wallet launch we will refresh
-    // all balances and all transactions here:
-    InteractionManager.runAfterInteractions(async () => {
-      let noErr = true;
-      try {
-        await BlueElectrum.waitTillConnected();
-        const balanceStart = +new Date();
-        await BlueApp.fetchWalletBalances();
-        const balanceEnd = +new Date();
-        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
-        const start = +new Date();
-        await BlueApp.fetchWalletTransactions();
-        const end = +new Date();
-        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
-      } catch (_) {
-        noErr = false;
-      }
-      if (noErr) this.redrawScreen();
-    });
-  }
 
   refreshTransactions() {
     if (!(this.state.lastSnappedTo < BlueApp.getWallets().length) && this.state.lastSnappedTo !== undefined) {
@@ -111,30 +72,10 @@ export class DashboardScreen extends Component<Props, State> {
             console.warn(err);
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
-
-          this.redrawScreen();
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         });
       },
     );
-  }
-
-  redrawScreen() {
-    console.log('wallets/list redrawScreen()');
-    const dataSource = BlueApp.getTransactions(null, 10);
-
-    const allWalletsBalance = BlueApp.getBalance();
-    const AllWallets = BlueApp.getWallets();
-    const wallets =
-      AllWallets.length > 1
-        ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets]
-        : AllWallets;
-
-    this.setState({
-      isLoading: false,
-      isFlatListRefreshControlHidden: true,
-      dataSource,
-      wallets,
-    });
   }
 
   chooseItemFromModal = async (index: number) => {
@@ -167,7 +108,8 @@ export class DashboardScreen extends Component<Props, State> {
           console.log('balance changed, thus txs too');
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
-          this.redrawScreen();
+          EV(EV.enum.WALLETS_COUNT_CHANGED);
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
           didRefresh = true;
         } else if (wallets[index].timeToRefreshTransaction()) {
           console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
@@ -179,7 +121,8 @@ export class DashboardScreen extends Component<Props, State> {
             await wallets[index].fetchUserInvoices();
             await wallets[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
           }
-          this.redrawScreen();
+          EV(EV.enum.WALLETS_COUNT_CHANGED);
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
           didRefresh = true;
         } else {
           console.log('balance not changed');
@@ -198,7 +141,8 @@ export class DashboardScreen extends Component<Props, State> {
   _keyExtractor = (_item: Wallet, index: number) => index.toString();
 
   sendCoins = () => {
-    const { wallets, lastSnappedTo } = this.state;
+    const { lastSnappedTo } = this.state;
+    const { wallets } = this.props;
     const activeWallet = wallets[lastSnappedTo].label === 'All wallets' ? wallets[1] : wallets[lastSnappedTo];
     this.props.navigation.navigate(Route.SendCoins, {
       fromAddress: activeWallet.getAddress(),
@@ -208,7 +152,8 @@ export class DashboardScreen extends Component<Props, State> {
   };
 
   receiveCoins = () => {
-    const { wallets, lastSnappedTo } = this.state;
+    const { lastSnappedTo } = this.state;
+    const { wallets } = this.props;
     const activeWallet = wallets[lastSnappedTo].label === 'All wallets' ? wallets[1] : wallets[lastSnappedTo];
     this.props.navigation.navigate(Route.ReceiveCoins, {
       secret: activeWallet.getSecret(),
@@ -216,7 +161,8 @@ export class DashboardScreen extends Component<Props, State> {
   };
 
   showModal = () => {
-    const { wallets, lastSnappedTo } = this.state;
+    const { lastSnappedTo } = this.state;
+    const { wallets } = this.props;
     this.props.navigation.navigate('ActionSheet', {
       wallets: wallets,
       selectedIndex: lastSnappedTo,
@@ -225,7 +171,8 @@ export class DashboardScreen extends Component<Props, State> {
   };
 
   renderTransactionList = () => {
-    const { wallets, lastSnappedTo, dataSource } = this.state;
+    const { lastSnappedTo } = this.state;
+    const { wallets, transactions } = this.props;
     const activeWallet = wallets[lastSnappedTo];
     if (activeWallet.label !== 'All wallets') {
       // eslint-disable-next-line prettier/prettier
@@ -238,8 +185,8 @@ export class DashboardScreen extends Component<Props, State> {
         </View>
       );
     }
-    return dataSource.length ? (
-      <TransactionList data={dataSource} label={activeWallet.label} />
+    return transactions.length ? (
+      <TransactionList data={transactions} label={activeWallet.label} />
     ) : (
       <View style={styles.noTransactionsContainer}>
         <Image source={images.noTransactions} style={styles.noTransactionsImage} />
@@ -249,12 +196,12 @@ export class DashboardScreen extends Component<Props, State> {
   };
 
   render() {
-    const { wallets, lastSnappedTo, isLoading } = this.state;
+    const { lastSnappedTo } = this.state;
+    const { wallets, isLoading } = this.props;
     const activeWallet = wallets[lastSnappedTo];
     if (isLoading) {
       return <View />;
     }
-
     if (wallets.length) {
       return (
         <ScreenTemplate
@@ -268,7 +215,7 @@ export class DashboardScreen extends Component<Props, State> {
         >
           <NavigationEvents
             onWillFocus={() => {
-              this.redrawScreen();
+              // this.redrawScreen();
             }}
           />
           <DashboardHeader
@@ -305,6 +252,14 @@ export class DashboardScreen extends Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: ApplicationState) => ({
+  wallets: state.wallets.wallets,
+  isLoading: state.wallets.isLoading,
+  transactions: state.transactions.transactionList,
+});
+
+export default connect(mapStateToProps)(DashboardScreen);
 
 const styles = StyleSheet.create({
   contentContainer: {
