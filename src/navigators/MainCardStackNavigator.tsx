@@ -23,6 +23,7 @@ import {
   SendTransactionDetailsScreen,
   ScanQrCodeScreen,
   ContactListScreen,
+  FilterTransactionsScreen,
 } from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
@@ -53,6 +54,7 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.SendTransactionDetails]: SendTransactionDetailsScreen,
     [Route.ScanQrCode]: ScanQrCodeScreen,
     [Route.ChooseContactList]: ContactListScreen,
+    [Route.FilterTransactions]: FilterTransactionsScreen,
   },
   {
     mode: 'card',

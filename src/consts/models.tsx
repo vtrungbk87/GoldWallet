@@ -28,6 +28,7 @@ export enum Route {
   ScanQrCode = 'ScanQrCode',
   ChooseContactList = 'ChooseContactList',
   MainCardStackNavigator = 'MainCardStackNavigator',
+  FilterTransactions = 'FilterTransactions',
 }
 
 export interface Wallet {
