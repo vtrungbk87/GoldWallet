@@ -18,6 +18,39 @@ module.exports = {
     creatingWallet: 'Creating your wallet',
     creatingWalletDescription: 'Please be patient while we create your wallet. It may take a while.',
   },
+  onboarding: {
+    onboarding: 'Onboarding',
+    pin: 'PIN',
+    createPin: 'Create PIN',
+    createNewPin: 'New PIN',
+    createPassword: 'Create transaction password',
+    createPinDescription:
+      'Your PIN will be used to log in to the application. You can change it later in the Settings section.',
+    confirmPin: 'Confirm PIN',
+    confirmNewPin: 'Confirm new PIN',
+    confirmPassword: 'Confirm transaction password',
+    passwordDoesNotMatch: 'Password does not match. Please enter a valid password.',
+    createPasswordDescription:
+      'Your Transaction Password will be used to verify all of the transactions. You cannot change it later. Transaction Password must contain at least 8 alphanumerical characters.',
+    changePin: 'Change PIN',
+    currentPin: 'Current PIN',
+    pinDoesNotMatch: 'PIN does not match. Please enter a valid PIN.',
+    successDescription: 'Hooray! \n You have successfully created your PIN.',
+    successDescriptionChangedPin: 'Hooray! \n You have successfully changed your PIN.',
+    successButton: 'Go to Dashboard',
+    successButtonChangedPin: 'Go back to Settings',
+  },
+  unlock: {
+    title: 'Unlock',
+    touchID: 'Touch ID for "Gold Wallet"',
+    confirmButton: 'Confirm fingerprint to continue.',
+    enter: 'Enter PIN',
+  },
+  unlockTransaction: {
+    headerText: 'Confirm transaction',
+    title: 'Confirm Transaction Password',
+    description: 'Confirm Transaction Password in order to proceed the transaction.',
+  },
   wallets: {
     dashboard: {
       title: 'Wallets',
@@ -70,8 +103,9 @@ module.exports = {
       addWalletButton: 'Add new wallet',
       importWalletButton: 'Import wallet',
       advancedOptions: 'Advanced options',
-      multipleAddresses: 'Multiple addresses',
-      singleAddress: 'Single address',
+      multipleAddresses: 'It contains a tree of P2SH addresses generated from a single 24-word seed',
+      singleAddress: 'It contains a single P2SH address',
+      segwidAddress: 'It contains a tree of native segwit addresses, generated from a single 24-word seed',
     },
     addSuccess: {
       title: 'Add new wallet',
@@ -209,6 +243,10 @@ module.exports = {
     fingerprintLogin: 'Fingerprint login',
     aboutUs: 'About us',
     header: 'Settings',
+    notSupportedFingerPrint: 'Your device does not support fingerprint',
+    TouchID: 'Allow fingerprint',
+    FaceID: 'Allow FaceID',
+    Biometrics: 'Allow biometrics',
   },
   aboutUs: {
     header: 'About us',
@@ -222,12 +260,20 @@ module.exports = {
   },
   electrumServer: {
     header: 'Electrum server',
+    title: 'Change electrum server',
+    description:
+      'You can change the address of the server your application will connect to. Default address is recommended.',
     save: 'Save',
     useDefault: 'Use default',
     host: 'host',
     port: 'port',
     successfullSave: 'Your changes have been saved successfully. Restart may be required for changes to take effect.',
     connectionError: "Can't connect to provided Electrum server",
+  },
+  advancedOptions: {
+    title: 'Configure advanced options',
+    description:
+      'Enabling Advanced options will allow you to choose from wallet types listed below: \nP2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Language',

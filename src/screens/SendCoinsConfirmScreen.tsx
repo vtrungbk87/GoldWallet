@@ -4,7 +4,9 @@ import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation
 
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text } from 'app/components';
-import { Transaction, Route } from 'app/consts';
+import { Transaction, Route, FlowType } from 'app/consts';
+import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
+import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
 import { HDSegwitBech32Wallet } from '../../class';
@@ -87,7 +89,15 @@ export class SendCoinsConfirmScreen extends Component<Props> {
             amount = i18n.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           }
 
-          this.props.navigation.navigate(Route.TransactionSuccess);
+          CreateMessage({
+            title: i18n.send.success.title,
+            description: i18n.send.success.description,
+            type: MessageType.success,
+            buttonProps: {
+              title: i18n.message.returnToDashboard,
+              onPress: () => NavigationService.navigateWithReset(Route.MainCardStackNavigator),
+            },
+          });
           this.setState({ isLoading: false });
         }
       } catch (error) {
@@ -110,6 +120,12 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     });
   };
 
+  goToUnlockScreen = () => {
+    this.props.navigation.navigate(Route.UnlockTransaction, {
+      onSuccess: this.broadcast,
+    });
+  };
+
   render() {
     const { navigation } = this.props;
     const fromWallet = navigation.getParam('fromWallet');
@@ -117,7 +133,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     const item = recipients[0];
     const fee = navigation.getParam('fee');
     return (
-      <ScreenTemplate footer={ScreenFooter(this.broadcast, this.goToDetails)}>
+      <ScreenTemplate footer={ScreenFooter(this.goToUnlockScreen, this.goToDetails)}>
         <View style={styles.container}>
           <View>
             <View style={styles.chooseWalletButton}>

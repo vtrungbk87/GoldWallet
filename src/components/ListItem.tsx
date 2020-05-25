@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ViewStyle } from 'react-native';
 
 import { palette, typography } from 'app/styles';
 
@@ -8,12 +8,14 @@ import { StyledSwitch } from './StyledSwitch';
 
 interface Props {
   title: string;
-  source: FastImageSource;
+  source?: FastImageSource;
   onPress?: () => void;
   switchValue?: boolean;
   onSwitchValueChange?: (value: boolean) => void;
   iconWidth?: number;
   iconHeight?: number;
+  disabled?: boolean;
+  containerStyle?: ViewStyle;
 }
 
 export const ListItem = ({
@@ -24,6 +26,8 @@ export const ListItem = ({
   iconWidth,
   iconHeight,
   onPress,
+  disabled,
+  containerStyle,
 }: Props) => {
   const [switchValueState, setSwitchValueState] = useState(false);
 
@@ -31,12 +35,12 @@ export const ListItem = ({
 
   const onSwitchPress = () => {
     setSwitchValueState(!switchValueState);
-    onSwitchValueChange(!switchValueState);
+    onSwitchValueChange && onSwitchValueChange(!switchValueState);
   };
 
   useEffect(() => {
     if (isSwitch()) {
-      setSwitchValueState(switchValue);
+      setSwitchValueState(switchValue!);
     }
   }, []);
 
@@ -45,25 +49,27 @@ export const ListItem = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <TouchableOpacity style={styles.touchableOpacityContainer} onPress={handleOnItemPress}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={source}
-            style={[
-              styles.image,
-              typeof iconWidth === 'number' && { width: iconWidth },
-              typeof iconHeight === 'number' && { height: iconHeight },
-            ]}
-          />
-        </View>
+        {!!source && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={source}
+              style={[
+                styles.image,
+                typeof iconWidth === 'number' && { width: iconWidth },
+                typeof iconHeight === 'number' && { height: iconHeight },
+              ]}
+            />
+          </View>
+        )}
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.title, disabled && styles.disabled]}>{title}</Text>
         </View>
       </TouchableOpacity>
       {isSwitch() && (
         <View>
-          <StyledSwitch onValueChange={onSwitchPress} value={switchValueState} />
+          <StyledSwitch onValueChange={onSwitchPress} value={switchValueState} disabled={disabled || false} />
         </View>
       )}
     </View>
@@ -95,5 +101,8 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: 21,
     height: 21,
+  },
+  disabled: {
+    color: palette.textGrey,
   },
 });

@@ -25,6 +25,7 @@ export const images = {
   bigMinus: require('./images/bigMinus.png'),
   bigPlus: require('./images/bigPlus.png'),
   cancelSmall: require('./images/cancelSmall.png'),
+  portraitLogo: require('./images/portraitLogo.png'),
 };
 
 export const icons = {
@@ -41,4 +42,6 @@ export const icons = {
   github: require('./images/github.png'),
   star: require('./images/star.png'),
   success: require('./images/success.png'),
+  visibilityOn: require('./images/visibilityOn.png'),
+  visibilityOff: require('./images/visibilityOff.png'),
 };

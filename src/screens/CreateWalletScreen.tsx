@@ -2,17 +2,22 @@ import AsyncStorage from '@react-native-community/async-storage';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import { ScreenTemplate, Text, InputItem, Header, Button, FlatButton, RadioGroup, RadioButton } from 'app/components';
 import { Route, Wallet } from 'app/consts';
 import { AppStorage, HDSegwitBech32Wallet, HDSegwitP2SHWallet, SegwitP2SHWallet, BlueApp, EV } from 'app/legacy';
+import { ApplicationState } from 'app/state';
+import { AppSettingsState } from 'app/state/appSettings/reducer';
 import { palette, typography } from 'app/styles';
 
 import CreateWalletSuccessScreen from './CreateWalletSuccessScreen';
 
 const i18n = require('../../loc');
 
-type Props = NavigationInjectedProps;
+interface Props extends NavigationInjectedProps {
+  appSettings: AppSettingsState;
+}
 
 interface State {
   label: string;
@@ -43,7 +48,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
   async componentDidMount() {
     let walletBaseURI = await AsyncStorage.getItem(AppStorage.LNDHUB);
-    const isAdvancedOptionsEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    const { isAdvancedOptionsEnabled } = this.props.appSettings;
     walletBaseURI = walletBaseURI || '';
 
     this.setState({
@@ -110,22 +115,22 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
         <>
           <Text style={styles.advancedOptionsLabel}>{i18n.wallets.add.advancedOptions}</Text>
           <RadioGroup color={palette.secondary} onSelect={this.onSelect} selectedIndex={this.state.selectedIndex}>
-            <RadioButton style={styles.radioButton} value={HDSegwitP2SHWallet.type}>
-              <View style={styles.radioButtonContent}>
-                <Text style={styles.radioButtonTitle}>{HDSegwitP2SHWallet.typeReadable}</Text>
-                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.multipleAddresses}</Text>
-              </View>
-            </RadioButton>
             <RadioButton style={styles.radioButton} value={SegwitP2SHWallet.type}>
               <View style={styles.radioButtonContent}>
                 <Text style={styles.radioButtonTitle}>{SegwitP2SHWallet.typeReadable}</Text>
                 <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.singleAddress}</Text>
               </View>
             </RadioButton>
+            <RadioButton style={styles.radioButton} value={HDSegwitP2SHWallet.type}>
+              <View style={styles.radioButtonContent}>
+                <Text style={styles.radioButtonTitle}>{HDSegwitP2SHWallet.typeReadable}</Text>
+                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.multipleAddresses}</Text>
+              </View>
+            </RadioButton>
             <RadioButton style={styles.radioButton} value={HDSegwitBech32Wallet.type}>
               <View style={styles.radioButtonContent}>
                 <Text style={styles.radioButtonTitle}>{HDSegwitBech32Wallet.typeReadable}</Text>
-                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.multipleAddresses}</Text>
+                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.segwidAddress}</Text>
               </View>
             </RadioButton>
           </RadioGroup>
@@ -165,7 +170,11 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
   }
 }
 
-export default CreateWalletScreen;
+const mapStateToProps = (state: ApplicationState) => ({
+  appSettings: state.appSettings,
+});
+
+export default connect(mapStateToProps)(CreateWalletScreen);
 
 const styles = StyleSheet.create({
   subtitle: {

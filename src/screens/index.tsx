@@ -17,10 +17,17 @@ export { default as TransactionDetailsScreen } from './TransactionDetailsScreen'
 export { ReceiveCoinsScreen } from './ReceiveCoinsScreen';
 export { ElectrumServerScreen } from './Settings/ElectrumServerScreen';
 export { AboutUsScreen } from './Settings/AboutUsScreen';
+export { default as AdvancedOptionsScreen } from './Settings/AdvancedOptionsScreen';
 export { SelectLanguageScreen } from './Settings/SelectLanguageScreen';
 export { SendCoinsScreen } from './SendCoinsScreen';
 export { SendCoinsConfirmScreen } from './SendCoinsConfirmScreen';
-export { TransactionSuccessScreen } from './TransactionSuccessScreen';
 export { SendTransactionDetailsScreen } from './SendTransactionDetailsScreen';
 export { default as ScanQrCodeScreen } from './ScanQrCodeScreen';
 export { default as ImportWalletQRCodeScreen } from './ImportWalletQRCodeScreen';
+export { CreatePinScreen } from './PinFlow/CreatePinScreen';
+export { ConfirmPinScreen } from './PinFlow/ConfirmPinScreen';
+export { CurrentPinScreen } from './PinFlow/CurrentPinScreen';
+export { CreateTransactionPassword } from './PinFlow/CreateTransactionPassword';
+export { ConfirmTransactionPassword } from './PinFlow/ConfirmTransactionPassword';
+export { UnlockTransaction } from './UnlockTransaction';
+export { UnlockScreen } from './UnlockScreen';

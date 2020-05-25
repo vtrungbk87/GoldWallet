@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { images } from 'app/assets';
 import { ListEmptyState, Image, WalletCard, ScreenTemplate, Header } from 'app/components';
 import { Wallet, Route, Transaction } from 'app/consts';
+import { SecureStorageService } from 'app/services';
 import { ApplicationState } from 'app/state';
 import { typography, palette } from 'app/styles';
 
@@ -42,6 +43,41 @@ export class DashboardScreen extends Component<Props, State> {
   };
 
   walletCarouselRef = React.createRef();
+
+  componentDidMount() {
+    SecureStorageService.getSecuredValue('pin')
+      .then(() => {
+        SecureStorageService.getSecuredValue('transactionPassword')
+          .then(transactionPassword => {})
+          .catch(error => {
+            this.props.navigation.navigate(Route.CreateTransactionPassword);
+          });
+      })
+      .catch(error => {
+        this.props.navigation.navigate(Route.CreatePin);
+      });
+
+    this.redrawScreen();
+    // the idea is that upon wallet launch we will refresh
+    // all balances and all transactions here:
+    InteractionManager.runAfterInteractions(async () => {
+      let noErr = true;
+      try {
+        await BlueElectrum.waitTillConnected();
+        const balanceStart = +new Date();
+        await BlueApp.fetchWalletBalances();
+        const balanceEnd = +new Date();
+        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const start = +new Date();
+        await BlueApp.fetchWalletTransactions();
+        const end = +new Date();
+        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
+      } catch (_) {
+        noErr = false;
+      }
+      if (noErr) this.redrawScreen();
+    });
+  }
 
   refreshTransactions() {
     if (!(this.state.lastSnappedTo < BlueApp.getWallets().length) && this.state.lastSnappedTo !== undefined) {

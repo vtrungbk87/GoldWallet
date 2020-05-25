@@ -1,3 +1,13 @@
+export const CONST = {
+  pinCodeLength: 4,
+  transactionMinPasswordLength: 8,
+};
+
+export enum FlowType {
+  password = 'password',
+  newPin = 'newPin',
+}
+
 export enum Route {
   Dashboard = 'Dashboard',
   WalletDetails = 'WalletDetails',
@@ -24,10 +34,18 @@ export enum Route {
   SelectLanguage = 'SelectLanguage',
   ReleaseNotes = 'ReleaseNotes',
   ActionSheet = 'ActionSheet',
-  TransactionSuccess = 'TransactionSuccessScreen',
   SendTransactionDetails = 'SendTransactionDetailsScreen',
   ScanQrCode = 'ScanQrCode',
   ChooseContactList = 'ChooseContactList',
+  MainCardStackNavigator = 'MainCardStackNavigator',
+  CurrentPin = 'CurrentPin',
+  CreatePin = 'CreatePin',
+  ConfirmPin = 'ConfirmPin',
+  UnlockScreen = 'UnlockScreen',
+  CreateTransactionPassword = 'CreateTransactionPassword',
+  ConfirmTransactionPassword = 'ConfirmTransactionPassword',
+  AdvancedOptions = 'AdvancedOptions',
+  UnlockTransaction = 'UnlockTransaction',
 }
 
 export interface Wallet {
@@ -53,6 +71,9 @@ export interface Wallet {
   unconfirmed_transactions: Transaction[];
   utxo: any[];
   _xpub: string;
+  getID: () => string;
+  weOwnAddress: (clipboard: string) => void;
+  isInvoiceGeneratedByWallet: (clipboard: string) => void;
 }
 
 export interface Contact {
@@ -71,4 +92,8 @@ export interface Transaction {
   inputs: any[];
   outputs: any[];
   note?: string;
+}
+
+export interface AppSettings {
+  isPinSetup: boolean;
 }
