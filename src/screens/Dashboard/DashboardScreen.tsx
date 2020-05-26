@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, InteractionManager, RefreshControl } from 'react-native';
-import { NavigationEvents, NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
+import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
@@ -56,27 +56,6 @@ export class DashboardScreen extends Component<Props, State> {
       .catch(error => {
         this.props.navigation.navigate(Route.CreatePin);
       });
-
-    this.redrawScreen();
-    // the idea is that upon wallet launch we will refresh
-    // all balances and all transactions here:
-    InteractionManager.runAfterInteractions(async () => {
-      let noErr = true;
-      try {
-        await BlueElectrum.waitTillConnected();
-        const balanceStart = +new Date();
-        await BlueApp.fetchWalletBalances();
-        const balanceEnd = +new Date();
-        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
-        const start = +new Date();
-        await BlueApp.fetchWalletTransactions();
-        const end = +new Date();
-        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
-      } catch (_) {
-        noErr = false;
-      }
-      if (noErr) this.redrawScreen();
-    });
   }
 
   refreshTransactions() {
@@ -249,11 +228,6 @@ export class DashboardScreen extends Component<Props, State> {
             />
           }
         >
-          <NavigationEvents
-            onWillFocus={() => {
-              // this.redrawScreen();
-            }}
-          />
           <DashboardHeader
             onSelectPress={this.showModal}
             balance={activeWallet.balance}
@@ -267,9 +241,7 @@ export class DashboardScreen extends Component<Props, State> {
               ref={this.walletCarouselRef as any}
               data={wallets.filter(wallet => wallet.label !== 'All wallets')}
               keyExtractor={this._keyExtractor as any}
-              onSnapToItem={(index: number) => {
-                this.onSnapToItem(index);
-              }}
+              onSnapToItem={this.onSnapToItem}
             />
           ) : (
             <View style={{ alignItems: 'center' }}>
